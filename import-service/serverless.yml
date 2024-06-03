@@ -1,0 +1,49 @@
+service: import-service
+
+frameworkVersion: "3"
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: ${env:REGION}
+  iamRoleStatements:
+  - Effect: "Allow"
+    Action:
+      - "s3:ListBucket"
+    Resource: "arn:aws:s3:::${env:BUCKET_NAME}"
+  - Effect: "Allow"
+    Action:
+      - "s3:*"
+    Resource: "arn:aws:s3:::${env:BUCKET_NAME}/images/*"
+  httpApi: {
+    cors: true,
+    authorizers: {
+      httpApiRequestAuthorizer: {
+        name: 'httpApiRequestAuthorizer',
+        functionArn: 'arn:aws:lambda:${env:REGION}:${env:ACCOUNT_ID}:function:authorization-service-dev-verifyUser',
+        type: 'request',
+        enableSimpleResponses: true,
+        payloadVersion: '2.0',
+      }
+    }
+  }
+
+functions:
+  importProductsFile:
+    handler: handlers/importImage.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /import
+          authorizer: {
+            name: 'httpApiRequestAuthorizer'
+          }  
+    url:
+      cors: true
+
+plugins:
+  - serverless-esbuild
+  - serverless-dotenv-plugin

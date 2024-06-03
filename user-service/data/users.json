@@ -1,0 +1,31 @@
+[
+    {
+      "user_id": "",
+      "firstName": "Marta",
+      "lastName": "Black",
+      "username": "Marta_st",
+      "password": "",
+      "email": "marta_12334@gmail.com",
+      "specialization": "",
+      "dateOfBirth": "01.01.2001",
+      "address": "123 Main StreetBoston, MA 02108United States",
+      "status": true,
+      "image": "image-url",
+      "type": "Student"
+    },
+    {
+      "user_id": "",
+      "firstName": "Jhon",
+      "lastName": "Jackson",
+      "username": "jhon_jk",
+      "password": "",
+      "email": "jhon@gmail.com",
+      "specialization": "Javascript",
+      "dateOfBirth": "",
+      "address": "",
+      "status": true,
+      "image": "image-url",
+      "type": "Trainer"
+    }
+  ]
+  

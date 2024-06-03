@@ -1,0 +1,33 @@
+[
+    {
+      "date": "12.05.2023",
+      "trainingName": "Javascript advance", 
+      "training_id": "1234225b-2ba2-4689-8495-0b10e74b5c05",
+      "type": "Webinar",
+      "studentName": "Marta Black",
+      "trainerName": "Jhon Jackson",
+      "duration": "15",
+      "student_id": "17a1c3d1-c8d4-4bf8-843c-7b400365dbf8"
+    },
+    {
+      "date": "01.16.2024",
+      "trainingName": "AWS Cloud",
+      "training_id": "1234226b-2ba2-4689-8495-0b10e74b5c05",
+      "type": "Intern",
+      "studentName": "Marta Black",
+      "trainerName": "Bob Marley",
+      "duration": "30",
+      "student_id": "17a1c3d1-c8d4-4bf8-843c-7b400365dbf8"
+    },
+    {
+      "date": "12.05.2023",
+      "trainingName": "Javascript advance",
+      "training_id": "123422cb-2ba2-4689-8495-0b10e74b5c05",
+      "type": "Webinar",
+      "studentName": "Bat Man",
+      "trainerName": "Jhon Jackson",
+      "duration": "15",
+      "student_id": "9500077a-2ba2-4689-8495-0b10e74b5c05"
+    }
+  ]
+  

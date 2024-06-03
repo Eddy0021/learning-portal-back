@@ -1,0 +1,19 @@
+{
+  "scripts": {
+    "aws:deploy": "serverless deploy",
+    "aws:remove": "serverless remove",
+    "aws:populate-db": "node utils/populateDB.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.13",
+    "@types/uuid": "^9.0.8",
+    "dotenv": "^16.4.5",
+    "esbuild": "^0.20.2",
+    "serverless-dotenv-plugin": "^6.0.0",
+    "serverless-esbuild": "^1.52.1"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.587.0",
+    "@aws-sdk/util-dynamodb": "^3.587.0"
+  }
+}

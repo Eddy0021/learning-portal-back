@@ -1,0 +1,182 @@
+service: user-service
+frameworkVersion: '3'
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: ${env:REGION}
+  iamRoleStatements:
+  - Effect: "Allow"
+    Action:
+      - dynamodb:Query
+      - dynamodb:Scan
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:UpdateItem
+      - dynamodb:DeleteItem
+    Resource: "arn:aws:dynamodb:${env:REGION}:${env:ACCOUNT_ID}:table/users"
+  - Effect: "Allow"
+    Action:
+      - dynamodb:Query
+      - dynamodb:Scan
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:UpdateItem
+      - dynamodb:DeleteItem
+    Resource: "arn:aws:dynamodb:${env:REGION}:${env:ACCOUNT_ID}:table/usersConnect"
+  - Effect: "Allow"
+    Action:
+      - dynamodb:Query
+    Resource: "arn:aws:dynamodb:${env:REGION}:${env:ACCOUNT_ID}:table/usersConnect/index/TrainerIdIndex"
+  httpApi: {
+    cors: true,
+    authorizers: {
+      httpApiRequestAuthorizer: {
+        name: 'httpApiRequestAuthorizer',
+        functionArn: 'arn:aws:lambda:${env:REGION}:${env:ACCOUNT_ID}:function:authorization-service-dev-verifyUser',
+        type: 'request',
+        enableSimpleResponses: true,
+        payloadVersion: '2.0',
+      }
+    }
+  }
+
+functions:
+  getUsersByType:
+    handler: handlers/getUsersByType.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /users/type/{type} 
+          authorizer: {
+            name: 'httpApiRequestAuthorizer'
+          }  
+    url:
+      cors: true
+    
+  getUserByID:
+    handler: handlers/getUserByID.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /users/{user_id}
+          authorizer: {
+            name: 'httpApiRequestAuthorizer'
+          }
+    url:
+      cors: true
+    
+  deleteUserByID:
+    handler: handlers/deleteUserByID.handler
+    events:
+      - httpApi:
+          method: DELETE
+          path: /users/{user_id}
+          authorizer: {
+            name: 'httpApiRequestAuthorizer'
+          }
+    url:
+      cors: true
+
+  createUser:
+    handler: handlers/createUser.handler
+    events:
+      - httpApi:
+          method: POST
+          path: /users
+    url:
+      cors: true
+
+  createUserConnection:
+    handler: handlers/createUserConnection.handler
+    events:
+      - httpApi:
+          method: POST
+          path: /users/connection
+          authorizer: {
+            name: 'httpApiRequestAuthorizer'
+          }
+    url:
+      cors: true
+  
+  updatePassword:
+    handler: handlers/updatePassword.handler
+    events:
+      - httpApi:
+          method: PATCH
+          path: /users/update-password
+          authorizer: {
+            name: 'httpApiRequestAuthorizer'
+          }
+    url:
+      cors: true
+
+  updateUser:
+    handler: handlers/updateUser.handler
+    events:
+      - httpApi:
+          method: PUT
+          path: /users
+          authorizer: {
+            name: 'httpApiRequestAuthorizer'
+          }
+    url:
+      cors: true
+  
+  handleOptions:
+    handler: handlers/handleOptions.handler
+    events:
+      - httpApi:
+          method: OPTIONS
+          path: /{proxy+}
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${env:USERS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: user_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: user_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+
+    UsersConnectTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${env:USERSCONNECT_TABLE}
+        AttributeDefinitions:
+          - AttributeName: student_id
+            AttributeType: S
+          - AttributeName: trainer_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: student_id
+            KeyType: HASH
+          - AttributeName: trainer_id
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        GlobalSecondaryIndexes:
+          - IndexName: TrainerIdIndex
+            KeySchema:
+              - AttributeName: trainer_id
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 5
+              WriteCapacityUnits: 5
+
+plugins:
+  - serverless-esbuild
+  - serverless-dotenv-plugin
