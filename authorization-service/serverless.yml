@@ -1,0 +1,45 @@
+service: authorization-service
+
+frameworkVersion: '3'
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: ${env:REGION}
+  iamRoleStatements:
+  - Effect: "Allow"
+    Action:
+      - dynamodb:Query
+      - dynamodb:Scan
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:UpdateItem
+      - dynamodb:DeleteItem
+    Resource: "arn:aws:dynamodb:${env:REGION}:${env:ACCOUNT_ID}:table/users"
+
+functions:
+  loginUser:
+    handler: handlers/loginUser.handler
+    events:
+      - httpApi:
+          method: POST
+          path: /auth/login 
+    url:
+      cors: true
+
+  verifyUser:
+    handler: handlers/verifyUser.handler
+
+  handleOptions:
+    handler: handlers/handleOptions.handler
+    events:
+      - httpApi:
+          method: OPTIONS
+          path: /{proxy+}
+
+plugins:
+  - serverless-esbuild
+  - serverless-dotenv-plugin

@@ -1,0 +1,102 @@
+service: training-service
+
+frameworkVersion: '3'
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: ${env:REGION}
+  iamRoleStatements:
+  - Effect: "Allow"
+    Action:
+      - dynamodb:Query
+      - dynamodb:Scan
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:UpdateItem
+      - dynamodb:DeleteItem
+    Resource: "arn:aws:dynamodb:${env:REGION}:${env:ACCOUNT_ID}:table/trainings"
+  httpApi: {
+    cors: true,
+    authorizers: {
+      httpApiRequestAuthorizer: {
+        name: 'httpApiRequestAuthorizer',
+        functionArn: 'arn:aws:lambda:${env:REGION}:${env:ACCOUNT_ID}:function:authorization-service-dev-verifyUser',
+        type: 'request',
+        enableSimpleResponses: true,
+        payloadVersion: '2.0',
+      }
+    }
+  }
+
+functions:
+  getTrainings:
+    handler: handlers/getTrainings.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /trainings
+          authorizer: {
+            name: 'httpApiRequestAuthorizer'
+          }  
+    url:
+      cors: true
+    
+  getTrainingByID:
+    handler: handlers/getTrainingByID.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /trainings/{student_id}
+          authorizer: {
+            name: 'httpApiRequestAuthorizer'
+          }  
+    url:
+      cors: true
+
+  createTraining:
+    handler: handlers/createTraining.handler
+    events:
+      - httpApi:
+          method: POST
+          path: /trainings
+          authorizer: {
+            name: 'httpApiRequestAuthorizer'
+          }  
+    url:
+      cors: true
+
+  handleOptions:
+    handler: handlers/handleOptions.handler
+    events:
+      - httpApi:
+          method: OPTIONS
+          path: /{proxy+}
+
+resources:
+  Resources:
+    TrainingsTable:
+      Type: AWS::DynamoDB::Table     
+      Properties:
+        TableName: ${env:TRAININGS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: student_id
+            AttributeType: S
+          - AttributeName: training_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: student_id
+            KeyType: HASH
+          - AttributeName: training_id
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+
+
+plugins:
+  - serverless-esbuild
+  - serverless-dotenv-plugin

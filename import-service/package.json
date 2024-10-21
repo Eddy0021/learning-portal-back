@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "aws:deploy": "serverless deploy",
+    "aws:remove": "serverless remove"
+  },
+  "devDependencies": {
+    "@types/node": "^20.13.0",
+    "serverless-dotenv-plugin": "^6.0.0",
+    "serverless-esbuild": "^1.52.1"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.588.0",
+    "@aws-sdk/s3-request-presigner": "^3.588.0",
+    "dotenv": "^16.4.5"
+  }
+}
